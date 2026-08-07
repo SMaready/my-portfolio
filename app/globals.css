@@ -32,6 +32,9 @@
   --radius-lg: 8px;
   --radius-xl: 12px;
 
+  /* === Layout tokens === */
+  --nav-height: 60px;
+
   /* === Font family tokens === */
   --font-inter: var(--font-inter); /* populated by next/font at runtime */
   --font-mono: var(--font-mono);   /* populated by next/font at runtime */
@@ -54,5 +57,5 @@ body {
 }
 
 section[id] {
-  scroll-margin-top: 60px;
+  scroll-margin-top: var(--nav-height);
 }
