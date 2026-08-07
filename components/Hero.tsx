@@ -1,13 +1,18 @@
-const GRAIN_FILTER_ID = 'hero-grain-filter'
+import { useId } from 'react'
 
 export function Hero() {
+  const grainFilterId = useId() + '-hero-grain-filter'
+
   return (
-    <section id="hero" className="relative h-screen bg-background">
+    <section id="hero" aria-labelledby="hero-heading" className="relative h-screen bg-background">
       {/*
         Fixed + negative z-index so this stays behind every section's normal-flow
-        content regardless of DOM nesting — position:fixed always promotes to a
-        root-level stacking context, and z-index 0 would otherwise paint above
-        later non-positioned sections despite living inside Hero's subtree.
+        content regardless of DOM nesting. position:fixed is contained by the
+        nearest ancestor with transform/filter/perspective/contain — with none
+        present on Hero's ancestors, that's the root, so a non-negative z-index
+        would paint in the root's "positioned, z>=0" step, which runs after later
+        sections' in-flow content and would show through once those get real
+        content. Negative z-index avoids that.
       */}
       <div
         aria-hidden="true"
@@ -43,16 +48,16 @@ export function Hero() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[4] mix-blend-overlay"
-        style={{ backgroundColor: 'white', opacity: 0.045, filter: `url(#${GRAIN_FILTER_ID})` }}
+        style={{ backgroundColor: 'white', opacity: 0.045, filter: `url(#${grainFilterId})` }}
       />
       <svg width="0" height="0" className="absolute" aria-hidden="true">
-        <filter id={GRAIN_FILTER_ID} x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
+        <filter id={grainFilterId} x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves={3} seed={5} stitchTiles="stitch" />
         </filter>
       </svg>
 
-      <div className="relative z-[5] flex h-full flex-col items-center justify-center px-gutter-mobile pt-[var(--nav-height)] text-center md:px-gutter-desktop">
-        <h1 className="text-[40px] font-bold leading-[1.05] tracking-[-0.02em] text-on-background md:text-[72px] md:leading-[1.0] md:tracking-[-0.03em]">
+      <div className="relative z-[5] flex h-full flex-col items-center justify-center px-gutter-mobile pt-[var(--nav-height)] text-center md:px-gutter-tablet lg:px-gutter-desktop">
+        <h1 id="hero-heading" className="text-[40px] font-bold leading-[1.05] tracking-[-0.02em] text-on-background md:text-[72px] md:leading-[1.0] md:tracking-[-0.03em]">
           Stephan Maready
         </h1>
         <p className="mt-5 font-mono text-[14px] leading-[1.5] text-on-background-dim md:text-[18px] md:tracking-[0.02em]">
