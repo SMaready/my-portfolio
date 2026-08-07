@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* === Color tokens === */
+  --color-background: #0e0e0e;
+  --color-surface: #161616;
+  --color-surface-elevated: #1e1e1e;
+  --color-surface-overlay: #000000;
+  --color-accent: #F76E00;
+  --color-accent-dim: #8B3F00;
+  --color-accent-on: #ffffff;
+  --color-on-background: #f0f0f0;
+  --color-on-background-dim: #9a9a9a;
+  --color-on-surface: #eeeeee;
+  --color-on-surface-dim: #8a8a8a;
+  --color-outline: #2a2a2a;
+  --color-texture-overlay: #3d3d3d;
+  --color-error: #cf6679;
+
+  /* === Spacing tokens === */
+  --spacing-gutter-mobile: 20px;
+  --spacing-gutter-tablet: 40px;
+  --spacing-gutter-desktop: 80px;
+  --spacing-section-gap: 120px;
+  --spacing-section-gap-mobile: 80px;
+  --spacing-card-padding: 24px;
+  --spacing-panel-width: 560px;
+
+  /* === Border radius tokens (--radius-* generates rounded-* utilities) === */
+  --radius-sm: 2px;
+  --radius-DEFAULT: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* === Font family tokens === */
+  --font-inter: var(--font-inter); /* populated by next/font at runtime */
+  --font-mono: var(--font-mono);   /* populated by next/font at runtime */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+section[id] {
+  scroll-margin-top: 60px;
 }
