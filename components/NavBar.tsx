@@ -12,7 +12,7 @@ const NAV_LINKS = [
 
 const SOCIAL_LINKS = [
   { label: 'GitHub', href: 'https://github.com/SMaready' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/your-profile' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/stephan-maready/' },
 ] as const
 
 function GitHubIcon() {
