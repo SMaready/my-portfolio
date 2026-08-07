@@ -75,7 +75,7 @@ function CloseIcon() {
 export function NavBar() {
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const hamburgerRef = useRef<HTMLButtonElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
@@ -86,17 +86,28 @@ export function NavBar() {
 
     if (sections.length === 0) return
 
+    const navHeightPx =
+      parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'), 10) || 60
+    const ratios = new Map<string, number>()
+
     const observer = new IntersectionObserver(
       (entries) => {
-        const mostVisible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        entries.forEach((entry) => {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
+        })
 
-        if (mostVisible) {
-          setActiveSection(mostVisible.target.id)
+        let topId: string | null = null
+        let topRatio = 0
+        for (const section of sections) {
+          const ratio = ratios.get(section.id) ?? 0
+          if (ratio > topRatio) {
+            topRatio = ratio
+            topId = section.id
+          }
         }
+        setActiveSection(topId)
       },
-      { rootMargin: '-60px 0px -60% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+      { rootMargin: `-${navHeightPx}px 0px -60% 0px`, threshold: [0, 0.25, 0.5, 0.75, 1] }
     )
 
     sections.forEach((section) => observer.observe(section))
@@ -105,20 +116,52 @@ export function NavBar() {
 
   function closeMenu() {
     setIsMenuOpen(false)
-    hamburgerRef.current?.focus()
+    menuButtonRef.current?.focus()
   }
+
+  // Force-close if the viewport crosses into desktop while the overlay is open,
+  // since it disappears via md:hidden but React state wouldn't otherwise know.
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)')
+    function handleChange(event: MediaQueryListEvent) {
+      if (event.matches) setIsMenuOpen(false)
+    }
+    query.addEventListener('change', handleChange)
+    return () => query.removeEventListener('change', handleChange)
+  }, [])
 
   useEffect(() => {
     if (!isMenuOpen) return
 
+    document.body.style.overflow = 'hidden'
     firstMenuLinkRef.current?.focus()
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') closeMenu()
+      if (event.key === 'Escape') {
+        closeMenu()
+        return
+      }
+      if (event.key !== 'Tab' || !overlayRef.current) return
+
+      const focusable = overlayRef.current.querySelectorAll<HTMLElement>('a[href], button')
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     function handlePointerDown(event: PointerEvent) {
-      if (overlayRef.current && !overlayRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      const insideOverlay = overlayRef.current?.contains(target)
+      const insideMenuButton = menuButtonRef.current?.contains(target)
+      if (!insideOverlay && !insideMenuButton) {
         closeMenu()
       }
     }
@@ -126,6 +169,7 @@ export function NavBar() {
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('pointerdown', handlePointerDown)
     return () => {
+      document.body.style.overflow = ''
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('pointerdown', handlePointerDown)
     }
@@ -168,62 +212,54 @@ export function NavBar() {
         </div>
 
         <button
-          ref={hamburgerRef}
+          ref={menuButtonRef}
           type="button"
-          aria-label="Open navigation menu"
+          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={isMenuOpen}
           aria-controls="mobile-nav-menu"
-          onClick={() => setIsMenuOpen(true)}
-          className="text-on-background md:hidden"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="p-2.5 text-on-background md:hidden"
         >
-          <HamburgerIcon />
+          {isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
         </button>
       </div>
 
-      {isMenuOpen && (
-        <div
-          id="mobile-nav-menu"
-          ref={overlayRef}
-          className="fixed inset-x-0 top-[var(--nav-height)] bottom-0 z-[100] flex flex-col gap-8 bg-background px-gutter-mobile py-12 md:hidden"
-        >
-          <button
-            type="button"
-            aria-label="Close navigation menu"
+      <div
+        id="mobile-nav-menu"
+        ref={overlayRef}
+        className={cn(
+          'fixed inset-x-0 top-[var(--nav-height)] bottom-0 z-[100] flex-col gap-8 bg-background px-gutter-mobile py-12 md:hidden',
+          isMenuOpen ? 'flex' : 'hidden'
+        )}
+      >
+        {NAV_LINKS.map((link, index) => (
+          <a
+            key={link.href}
+            href={link.href}
+            ref={index === 0 ? firstMenuLinkRef : undefined}
             onClick={closeMenu}
-            className="self-end text-on-background"
+            className="text-2xl font-medium text-on-background"
           >
-            <CloseIcon />
-          </button>
+            {link.label}
+          </a>
+        ))}
 
-          {NAV_LINKS.map((link, index) => (
+        <div className="flex gap-6 pt-4">
+          {SOCIAL_LINKS.map((social) => (
             <a
-              key={link.href}
-              href={link.href}
-              ref={index === 0 ? firstMenuLinkRef : undefined}
+              key={social.href}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.label}
               onClick={closeMenu}
-              className="text-2xl font-medium text-on-background"
+              className="text-on-background-dim"
             >
-              {link.label}
+              <SocialIcon label={social.label} />
             </a>
           ))}
-
-          <div className="flex gap-6 pt-4">
-            {SOCIAL_LINKS.map((social) => (
-              <a
-                key={social.href}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                onClick={closeMenu}
-                className="text-on-background-dim"
-              >
-                <SocialIcon label={social.label} />
-              </a>
-            ))}
-          </div>
         </div>
-      )}
+      </div>
     </nav>
   )
 }
