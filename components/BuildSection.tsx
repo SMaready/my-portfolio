@@ -5,14 +5,19 @@ import { projects } from '@/data/projects'
 import { smoothstep } from '@/lib/terrain'
 import { cn } from '@/lib/cn'
 
+/**
+ * Progressive forms, because the sequence is unfolding as you scroll and
+ * because a real toolchain prints them that way. There is deliberately no
+ * "sourcing" stage — sourcing is procurement, not compilation, and the sources
+ * simply existing was never really a step.
+ */
 const STAGES = [
-  { key: 'source', label: 'Source', caption: 'Six things worth showing.' },
-  { key: 'compile', label: 'Compile', caption: 'Each one, start to finish.' },
-  { key: 'link', label: 'Link', caption: 'And everything they were built on.' },
-  { key: 'run', label: 'Run', caption: 'Ready.' },
+  { key: 'compiling', label: 'Compiling', caption: 'Six projects, each one start to finish.' },
+  { key: 'linking', label: 'Linking', caption: 'And everything they were built on.' },
+  { key: 'running', label: 'Running', caption: 'Ready.' },
 ] as const
 
-const STAGE_EDGES = [0, 0.22, 0.48, 0.74]
+const STAGE_EDGES = [0, 0.4, 0.7]
 
 /** Rows resolve one after another rather than together — that is what makes it read as a build. */
 const STAGGER = 0.035
@@ -80,10 +85,10 @@ export function BuildSection() {
           <ol className="mt-10 space-y-px border-t border-rule md:mt-14">
             {projects.map((project, index) => {
               const offset = index * STAGGER
-              const appear = smoothstep(offset, 0.18 + offset, progress)
-              const compiled = smoothstep(0.2 + offset, 0.46 + offset, progress)
-              const linked = smoothstep(0.44 + offset, 0.68 + offset, progress)
-              const ran = smoothstep(0.7 + offset, 0.88 + offset, progress)
+              const appear = smoothstep(offset, 0.16 + offset, progress)
+              const compiled = smoothstep(0.1 + offset, 0.44 + offset, progress)
+              const linked = smoothstep(0.42 + offset, 0.66 + offset, progress)
+              const ran = smoothstep(0.68 + offset, 0.86 + offset, progress)
 
               return (
                 <li
