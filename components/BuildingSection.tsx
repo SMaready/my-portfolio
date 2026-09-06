@@ -5,7 +5,7 @@ import { SectionHeader } from './SectionHeader'
 
 export function BuildingSection() {
   return (
-    <section id="now" aria-labelledby="now-heading" className="border-t border-rule bg-bg-sink">
+    <section id="now" aria-labelledby="now-heading" className="relative z-10 border-t border-rule bg-bg-sink">
       <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
         <div id="now-heading">
           <SectionHeader title="Currently building" note={`Updated ${buildingUpdated}`} />

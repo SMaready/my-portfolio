@@ -191,7 +191,7 @@ export function NavBar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="fixed left-0 top-0 z-[100] h-[var(--nav-height)] w-full border-b border-rule bg-[rgba(8,9,10,0.82)] backdrop-blur-[14px]">
+    <nav className="fixed left-0 top-0 z-[100] h-[var(--nav-height)] w-full border-b border-rule bg-[rgba(8,9,10,0.92)] backdrop-blur-[14px]">
       <div className="mx-auto flex h-full max-w-[var(--page-max)] items-center justify-between px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop">
         <a href="#index" className="group flex items-baseline gap-2.5">
           <span className="border border-rule-bright px-1.5 py-0.5 font-mono text-[11px] text-accent transition-colors group-hover:border-accent">

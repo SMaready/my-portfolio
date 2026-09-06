@@ -29,8 +29,9 @@ export function ContactForm() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop"
+      className="relative z-10 bg-bg"
     >
+      <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
       <div id="contact-heading">
         <SectionHeader title="Contact" />
       </div>
@@ -102,6 +103,7 @@ export function ContactForm() {
           </div>
         </dl>
       </Reveal>
+      </div>
     </section>
   )
 }

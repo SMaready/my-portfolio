@@ -2,7 +2,7 @@ import { contact } from '@/data/about'
 
 export function Footer() {
   return (
-    <footer className="border-t border-rule bg-bg-sink">
+    <footer className="relative z-10 border-t border-rule bg-bg-sink">
       <div className="mx-auto flex w-full max-w-[var(--page-max)] flex-col gap-4 px-gutter-mobile py-8 font-mono text-[11px] text-ink-faint md:flex-row md:items-center md:justify-between md:px-gutter-tablet lg:px-gutter-desktop">
         <p>&copy; {new Date().getFullYear()} Stephan Maready</p>
         <p>Built with Next.js and Tailwind. Deployed on Vercel.</p>

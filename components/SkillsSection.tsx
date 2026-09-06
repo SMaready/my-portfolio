@@ -7,8 +7,9 @@ export function SkillsSection() {
     <section
       id="stack"
       aria-labelledby="stack-heading"
-      className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop"
+      className="relative z-10 bg-bg"
     >
+      <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
       <div id="stack-heading">
         <SectionHeader title="Stack" note="working in / sharpening" />
       </div>
@@ -56,6 +57,7 @@ export function SkillsSection() {
         {/* Filler so the last grid row completes and the rule background
             behind the gap never shows through as an empty tile. */}
         <div aria-hidden="true" className="hidden bg-bg sm:block" />
+      </div>
       </div>
     </section>
   )

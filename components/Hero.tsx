@@ -1,5 +1,4 @@
 import { about } from '@/data/about'
-import { GridField } from './GridField'
 import { TypingLine } from './TypingLine'
 
 function CornerTicks() {
@@ -21,20 +20,8 @@ export function Hero() {
     <section
       id="index"
       aria-labelledby="hero-heading"
-      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg pt-[var(--nav-height)]"
+      className="relative z-10 flex min-h-[100svh] flex-col justify-center pt-[var(--nav-height)]"
     >
-      <GridField />
-
-      {/* Vignette — pulls the eye to the centre without a gradient wash. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 90% 80% at 50% 50%, transparent 38%, rgba(0,0,0,0.55) 100%)',
-        }}
-      />
-
       <div className="relative mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop">
         <div className="relative py-14 md:py-20">
           <CornerTicks />
@@ -42,14 +29,16 @@ export function Hero() {
           <div className="px-5 md:px-10">
             <h1
               id="hero-heading"
-              className="text-[clamp(2.6rem,8vw,5.6rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ink"
+              className="text-[clamp(3rem,10.5vw,8.5rem)] font-semibold leading-[0.9] tracking-[-0.045em] text-ink"
             >
-              {name}
+              Stephan
+              <br />
+              <span className="sr-only">{name}</span>
+              <span aria-hidden="true">Maready</span>
             </h1>
 
-            <p className="mt-6 font-mono text-[clamp(0.95rem,2.4vw,1.35rem)] leading-tight text-ink-dim">
-              {prefix}{' '}
-              <TypingLine phrases={rotating} />
+            <p className="mt-8 font-mono text-[clamp(0.95rem,2.2vw,1.5rem)] leading-tight text-ink-dim">
+              {prefix} <TypingLine phrases={rotating} />
             </p>
 
             <div className="mt-12 flex flex-wrap items-center gap-3">

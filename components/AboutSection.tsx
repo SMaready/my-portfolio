@@ -7,7 +7,7 @@ export function AboutSection() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="border-t border-rule bg-bg-sink"
+      className="relative z-10 border-t border-rule bg-bg-sink"
     >
       <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
         <div id="about-heading">

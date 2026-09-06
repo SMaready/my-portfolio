@@ -157,8 +157,9 @@ export function ProjectsSection() {
     <section
       id="work"
       aria-labelledby="work-heading"
-      className="mx-auto w-full max-w-[var(--page-max)] scroll-mt-[var(--nav-height)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop"
+      className="relative z-10 scroll-mt-[var(--nav-height)] bg-bg"
     >
+      <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
       <div id="work-heading">
         <SectionHeader title="Selected work" note={`${projects.length} projects`} />
       </div>
@@ -173,6 +174,7 @@ export function ProjectsSection() {
           />
         ))}
       </Reveal>
+      </div>
     </section>
   )
 }
