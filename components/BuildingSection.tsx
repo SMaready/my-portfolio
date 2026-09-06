@@ -8,7 +8,7 @@ export function BuildingSection() {
     <section id="now" aria-labelledby="now-heading" className="border-t border-rule bg-bg-sink">
       <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
         <div id="now-heading">
-          <SectionHeader index="05" title="Currently building" note={`Updated ${buildingUpdated}`} />
+          <SectionHeader title="Currently building" note={`Updated ${buildingUpdated}`} />
         </div>
 
         <ol className="space-y-px bg-rule">

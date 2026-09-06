@@ -32,7 +32,7 @@ export function ContactForm() {
       className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop"
     >
       <div id="contact-heading">
-        <SectionHeader index="06" title="Contact" />
+        <SectionHeader title="Contact" />
       </div>
 
       <Reveal className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-20">

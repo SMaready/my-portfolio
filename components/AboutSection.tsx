@@ -11,7 +11,7 @@ export function AboutSection() {
     >
       <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop">
         <div id="about-heading">
-          <SectionHeader index="03" title="About" />
+          <SectionHeader title="About" />
         </div>
 
         <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:gap-20">

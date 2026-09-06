@@ -10,7 +10,7 @@ export function SkillsSection() {
       className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop"
     >
       <div id="stack-heading">
-        <SectionHeader index="04" title="Stack" note="working in / sharpening" />
+        <SectionHeader title="Stack" note="working in / sharpening" />
       </div>
 
       <div className="grid gap-px bg-rule sm:grid-cols-2 lg:grid-cols-3">

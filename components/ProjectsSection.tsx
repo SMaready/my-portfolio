@@ -160,7 +160,7 @@ export function ProjectsSection() {
       className="mx-auto w-full max-w-[var(--page-max)] scroll-mt-[var(--nav-height)] px-gutter-mobile py-24 md:px-gutter-tablet md:py-32 lg:px-gutter-desktop"
     >
       <div id="work-heading">
-        <SectionHeader index="02" title="Selected work" note={`${projects.length} projects`} />
+        <SectionHeader title="Selected work" note={`${projects.length} projects`} />
       </div>
 
       <Reveal className="border-t border-rule">
