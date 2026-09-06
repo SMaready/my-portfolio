@@ -76,50 +76,46 @@ export function NavBar() {
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
-  // Scroll-spy: whichever tracked section occupies the most of the viewport wins.
+  // Scroll-spy and the progress rail, from one rAF-throttled scroll read.
+  //
+  // This used to pick whichever section had the largest intersectionRatio,
+  // which is wrong at the end of the page: ratio is a fraction of the *target*,
+  // so a tall section like Now beats a short one like Contact even when
+  // Contact is what fills the screen. A reading line a quarter down the
+  // viewport is unambiguous, and the bottom-of-document case is handled
+  // outright so the final section always wins when you reach the end.
   useEffect(() => {
     const sections = NAV_LINKS.map((link) => document.getElementById(link.href.slice(1))).filter(
       (el): el is HTMLElement => el !== null
     )
 
-    if (sections.length === 0) return
-
-    const navHeightPx =
-      parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'), 10) || 56
-    const ratios = new Map<string, number>()
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
-        })
-
-        let topId: string | null = null
-        let topRatio = 0
-        for (const section of sections) {
-          const ratio = ratios.get(section.id) ?? 0
-          if (ratio > topRatio) {
-            topRatio = ratio
-            topId = section.id
-          }
-        }
-        setActiveSection(topId)
-      },
-      { rootMargin: `-${navHeightPx}px 0px -55% 0px`, threshold: [0, 0.15, 0.4, 0.7, 1] }
-    )
-
-    sections.forEach((section) => observer.observe(section))
-    return () => observer.disconnect()
-  }, [])
-
-  // Hairline progress rail along the bottom edge of the nav.
-  useEffect(() => {
     let frame = 0
 
     function update() {
       frame = 0
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+
+      const doc = document.documentElement
+      const scrollable = doc.scrollHeight - window.innerHeight
       setProgress(scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0)
+
+      if (sections.length === 0) return
+
+      // At the bottom of the document the last section is active by definition,
+      // however short it is.
+      if (window.scrollY + window.innerHeight >= doc.scrollHeight - 4) {
+        setActiveSection(sections[sections.length - 1].id)
+        return
+      }
+
+      const navHeight =
+        parseInt(getComputedStyle(doc).getPropertyValue('--nav-height'), 10) || 56
+      const line = navHeight + window.innerHeight * 0.25
+
+      let current: string | null = null
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= line) current = section.id
+      }
+      setActiveSection(current)
     }
 
     function onScroll() {
