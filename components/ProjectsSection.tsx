@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { projects, type Project } from '@/data/projects'
 import { cn } from '@/lib/cn'
+import { smoothstep } from '@/lib/terrain'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 import { Reveal } from './Reveal'
@@ -110,51 +111,105 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 /**
- * Pinned rail: vertical scroll drives the track sideways, one project centred
- * at a time. Scroll itself is never intercepted — the section is simply tall
- * and the track reads its position, so trackpads, keyboards and scrollbars all
- * behave normally.
+ * Pinned rail: one project on screen at a time. Vertical scroll drives the
+ * track sideways, so the current card leaves to the left as the next arrives
+ * from the right, and reverses exactly when you scroll back.
+ *
+ * Two things keep it smooth. The transform is written straight to the DOM
+ * rather than going through React state, because re-rendering six full project
+ * cards on every scroll frame is far more work than the animation itself. And
+ * the position eases toward the scroll target instead of snapping to it —
+ * wheel and trackpad scroll arrives in chunks, and easing is what turns those
+ * steps into continuous motion.
  */
 function ProjectRail() {
   const sectionRef = useRef<HTMLElement>(null)
+  const stickyRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
-  const [offset, setOffset] = useState(0)
-  const [pad, setPad] = useState(0)
+  const railRef = useRef<HTMLSpanElement>(null)
+  const slidesRef = useRef<(HTMLDivElement | null)[]>([])
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
-    let frame = 0
+    let raf = 0
+    let target = 0
+    let current = 0
+    let last = performance.now()
+    let slot = window.innerWidth
+    let indexNow = 0
 
-    function update() {
-      frame = 0
+    const lastCard = projects.length - 1
+
+    // Dead zones at each end of the track. Without the first one the card is
+    // already sliding while it is still fading in; without the second the last
+    // card never gets a beat centred before the section lets go.
+    const HOLD_IN = 0.08
+    const HOLD_OUT = 0.06
+
+    function measure() {
       const section = sectionRef.current
-      const track = trackRef.current
-      if (!section || !track) return
-
-      const card = track.firstElementChild as HTMLElement | null
-      if (card) setPad(Math.max(0, (track.clientWidth - card.offsetWidth) / 2))
-
+      if (!section) return
+      slot = slidesRef.current[0]?.offsetWidth || window.innerWidth
       const rect = section.getBoundingClientRect()
       const travel = rect.height - window.innerHeight
-      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, -rect.top / travel))
-
-      const distance = Math.max(0, track.scrollWidth - track.clientWidth)
-      setOffset(-p * distance)
-      setIndex(Math.min(projects.length - 1, Math.round(p * (projects.length - 1))))
+      target = travel <= 0 ? 0 : Math.min(1, Math.max(0, -rect.top / travel))
+      if (!raf) raf = window.requestAnimationFrame(tick)
     }
 
-    function onScroll() {
-      if (frame) return
-      frame = window.requestAnimationFrame(update)
+    function apply(p: number) {
+      // Invisible until the section pins, then fades in already centred, so it
+      // arrives in place instead of sliding up from the bottom of the screen.
+      if (stickyRef.current) stickyRef.current.style.opacity = String(smoothstep(0, 0.05, p))
+
+      const travelled = Math.min(
+        1,
+        Math.max(0, (p - HOLD_IN) / (1 - HOLD_IN - HOLD_OUT))
+      )
+      const position = travelled * lastCard
+
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translate3d(${-position * slot}px, 0, 0)`
+      }
+
+      slidesRef.current.forEach((slide, i) => {
+        if (!slide) return
+        const distance = Math.min(1, Math.abs(i - position))
+        slide.style.opacity = String(1 - distance * 0.8)
+      })
+
+      if (railRef.current) {
+        railRef.current.style.width = `${((position + 1) / projects.length) * 100}%`
+      }
+
+      const next = Math.min(lastCard, Math.round(position))
+      if (next !== indexNow) {
+        indexNow = next
+        setIndex(next)
+      }
     }
 
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    function tick(now: number) {
+      const dt = Math.min(0.05, (now - last) / 1000)
+      last = now
+
+      const k = 1 - Math.exp(-dt * 13)
+      current += (target - current) * k
+
+      const settled = Math.abs(target - current) < 0.0003
+      if (settled) current = target
+      apply(current)
+
+      raf = settled ? 0 : window.requestAnimationFrame(tick)
+    }
+
+    measure()
+    apply(current)
+    window.addEventListener('scroll', measure, { passive: true })
+    window.addEventListener('resize', measure)
     return () => {
-      if (frame) window.cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      if (raf) window.cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', measure)
+      window.removeEventListener('resize', measure)
     }
   }, [])
 
@@ -164,31 +219,30 @@ function ProjectRail() {
       ref={sectionRef}
       aria-labelledby="work-heading"
       className="relative z-10 bg-bg"
-      style={{ height: `${projects.length * 80}svh` }}
+      style={{ height: `${projects.length * 85}svh` }}
     >
-      <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden pt-[var(--nav-height)]">
+      <div
+        ref={stickyRef}
+        className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden pt-[var(--nav-height)] opacity-0"
+      >
         <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-desktop [&_header]:mb-6">
           <div id="work-heading">
             <SectionHeader title="Selected work" note={`${projects.length} projects`} />
           </div>
         </div>
 
-        <div
-          ref={trackRef}
-          className="flex w-full items-stretch gap-8 will-change-transform"
-          style={{
-            paddingLeft: pad,
-            paddingRight: pad,
-            transform: `translate3d(${offset}px,0,0)`,
-          }}
-        >
-          {projects.map((project) => (
+        <div ref={trackRef} className="flex will-change-transform">
+          {projects.map((project, i) => (
             <div
               key={project.id}
-              className="w-[min(62vw,880px)] shrink-0"
-              style={{ height: 'min(70svh, 680px)' }}
+              ref={(node) => {
+                slidesRef.current[i] = node
+              }}
+              className="flex w-screen shrink-0 justify-center px-gutter-mobile md:px-gutter-tablet"
             >
-              <ProjectCard project={project} />
+              <div className="w-[min(90vw,1120px)]" style={{ height: 'min(66svh, 660px)' }}>
+                <ProjectCard project={project} />
+              </div>
             </div>
           ))}
         </div>
@@ -199,10 +253,7 @@ function ProjectRail() {
               {String(index + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
             </span>
             <span aria-hidden="true" className="h-px flex-1 bg-rule-bright">
-              <span
-                className="block h-px bg-accent transition-[width] duration-100"
-                style={{ width: `${((index + 1) / projects.length) * 100}%` }}
-              />
+              <span ref={railRef} className="block h-px w-0 bg-accent" />
             </span>
             <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
               scroll

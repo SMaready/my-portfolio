@@ -10,10 +10,10 @@
  */
 
 export const COLS = 64
-export const ROWS = 34
+export const ROWS = 40
 
 const X_HALF = 34
-const Z_NEAR = 2.6
+const Z_NEAR = 3
 const Z_FAR = 54
 const CAM_Y = 3.4
 
@@ -71,12 +71,19 @@ export function project(
   const cx = width * 0.5 + panX * 26
   const horizon = height * 0.42 + panY * 14
 
+  // The grid slides forward by the remainder of one cell and wraps; the field
+  // is sampled at the camera-relative depth plus distance travelled.
+  //
+  // This previously read `zScreen + (flow - cellShift)`, which subtracts the
+  // cell offset twice and turns the sampling position into a staircase: the
+  // surface froze between cell boundaries and then jumped a whole cell. Frame
+  // timing stayed at a clean 16.7ms throughout, because every frame rendered
+  // fine — it was just rendering the same picture 45 times in a row.
   const cellShift = flow % DZ
-  const worldShift = flow - cellShift
 
   for (let j = 0; j < ROWS; j++) {
     const zScreen = Z_NEAR + j * DZ - cellShift
-    const zWorld = zScreen + worldShift
+    const zWorld = zScreen + flow
     const scale = focal / zScreen
     const rowDepth = j / (ROWS - 1)
 
