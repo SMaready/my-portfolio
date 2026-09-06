@@ -62,14 +62,25 @@ export function BuildSection() {
 
   const active = stageIndex(progress)
 
+  // A hard cut, not a fade. Once the last stage has landed the whole thing
+  // vanishes in a single frame — the way a build finishes and the terminal
+  // hands the screen to the program — and the work rail scrolls up into the
+  // gap it leaves behind.
+  const launched = progress > 0.93
+
   return (
     <section
       id="build"
       ref={sectionRef}
       aria-label="What is on this site"
-      className="relative z-10 h-[200svh] bg-bg"
+      className="relative z-10 h-[280svh] bg-bg md:h-[340svh]"
     >
-      <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
+      <div
+        className={cn(
+          'sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden',
+          launched && 'opacity-0'
+        )}
+      >
         <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop">
           <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
             <h2 className="text-[clamp(2.2rem,6.5vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ink">
