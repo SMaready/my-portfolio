@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { contact } from '@/data/about'
+import { about, contact } from '@/data/about'
 import { cn } from '@/lib/cn'
 
 const NAV_LINKS = [
@@ -11,6 +11,10 @@ const NAV_LINKS = [
   { label: 'Now', href: '#now' },
   { label: 'Contact', href: '#contact' },
 ] as const
+
+const STATUS =
+  about.hero.meta.find((item) => item.label === 'Status')?.value ??
+  'Open to Summer 2027 internships'
 
 const SOCIAL_LINKS = [
   { label: 'GitHub', href: contact.github },
@@ -275,31 +279,75 @@ export function NavBar() {
       <div
         aria-hidden="true"
         className={cn(
-          'fixed inset-x-0 bottom-0 top-[var(--nav-height)] z-[90] bg-black/60 backdrop-blur-[2px] md:hidden',
-          isMenuOpen ? 'block' : 'hidden'
+          'fixed inset-x-0 bottom-0 top-[var(--nav-height)] z-[90] bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 md:hidden',
+          isMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
       />
 
+      {/* Kept mounted rather than unmounted so the staggered entrance can
+          actually transition. `invisible` also takes it out of the tab order,
+          which display:none was doing before. */}
       <div
         id="mobile-nav-menu"
         ref={overlayRef}
         className={cn(
-          'fixed inset-x-0 top-[var(--nav-height)] z-[100] flex-col border-b border-rule-bright bg-bg-raise px-gutter-mobile pb-6 pt-2 shadow-[0_28px_60px_rgba(0,0,0,0.7)] md:hidden',
-          isMenuOpen ? 'flex' : 'hidden'
+          'fixed inset-x-0 top-[var(--nav-height)] z-[100] flex flex-col border-b border-rule-bright bg-bg-raise px-gutter-mobile pb-8 pt-6 shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-300 md:hidden',
+          isMenuOpen
+            ? 'visible translate-y-0 opacity-100'
+            : 'pointer-events-none invisible -translate-y-3 opacity-0'
         )}
       >
-        {NAV_LINKS.map((link, index) => (
+        {NAV_LINKS.map((link, index) => {
+          const isActive = activeSection === link.href.slice(1)
+          return (
+            <a
+              key={link.href}
+              href={link.href}
+              ref={index === 0 ? firstMenuLinkRef : undefined}
+              onClick={() => setIsMenuOpen(false)}
+              aria-current={isActive ? 'true' : undefined}
+              style={{ transitionDelay: isMenuOpen ? `${90 + index * 45}ms` : '0ms' }}
+              className={cn(
+                'group flex flex-col items-center gap-2 py-4 text-center text-[26px] font-medium tracking-[-0.02em] transition-all duration-300',
+                isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
+                isActive ? 'text-accent' : 'text-ink'
+              )}
+            >
+              {link.label}
+              {/* The rule under the current section — same draw-in language as
+                  the section headers. */}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'h-px bg-accent transition-all duration-500',
+                  isActive ? 'w-10' : 'w-0'
+                )}
+              />
+            </a>
+          )
+        })}
+
+        <div
+          style={{ transitionDelay: isMenuOpen ? `${90 + NAV_LINKS.length * 45}ms` : '0ms' }}
+          className={cn(
+            'mt-6 flex flex-col items-center gap-3 border-t border-rule pt-6 transition-all duration-300',
+            isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+          )}
+        >
+          <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
+            {STATUS}
+          </p>
           <a
-            key={link.href}
-            href={link.href}
-            ref={index === 0 ? firstMenuLinkRef : undefined}
+            href={`mailto:${contact.email}`}
             onClick={() => setIsMenuOpen(false)}
-            className="block border-b border-rule py-4 text-[20px] font-medium text-ink last:border-b-0"
+            className="font-mono text-[12px] text-ink-dim underline-offset-4 transition-colors hover:text-accent hover:underline"
           >
-            {link.label}
+            {contact.email}
           </a>
-        ))}
+        </div>
       </div>
+
     </nav>
   )
 }
