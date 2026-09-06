@@ -270,11 +270,21 @@ export function NavBar() {
         style={{ width: `${progress * 100}%` }}
       />
 
+      {/* Scrim. Without it the panel sat on the same colour as the page and
+          there was nothing to tell you the menu had opened. */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          'fixed inset-x-0 bottom-0 top-[var(--nav-height)] z-[90] bg-black/60 backdrop-blur-[2px] md:hidden',
+          isMenuOpen ? 'block' : 'hidden'
+        )}
+      />
+
       <div
         id="mobile-nav-menu"
         ref={overlayRef}
         className={cn(
-          'fixed inset-x-0 bottom-0 top-[var(--nav-height)] z-[100] flex-col gap-1 bg-bg px-gutter-mobile py-10 md:hidden',
+          'fixed inset-x-0 top-[var(--nav-height)] z-[100] flex-col border-b border-rule-bright bg-bg-raise px-gutter-mobile pb-6 pt-2 shadow-[0_28px_60px_rgba(0,0,0,0.7)] md:hidden',
           isMenuOpen ? 'flex' : 'hidden'
         )}
       >
@@ -284,7 +294,7 @@ export function NavBar() {
             href={link.href}
             ref={index === 0 ? firstMenuLinkRef : undefined}
             onClick={() => setIsMenuOpen(false)}
-            className="block border-b border-rule py-5 text-[22px] font-medium text-ink"
+            className="block border-b border-rule py-4 text-[20px] font-medium text-ink last:border-b-0"
           >
             {link.label}
           </a>

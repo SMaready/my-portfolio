@@ -1,4 +1,5 @@
 import { about } from '@/data/about'
+import { HeroTerrain } from './HeroTerrain'
 import { TypingLine } from './TypingLine'
 
 function CornerTicks() {
@@ -20,8 +21,10 @@ export function Hero() {
     <section
       id="index"
       aria-labelledby="hero-heading"
-      className="relative z-10 flex min-h-[100svh] flex-col justify-center pt-[var(--nav-height)]"
+      className="relative z-10 flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg pt-[var(--nav-height)]"
     >
+      <HeroTerrain />
+
       <div className="relative mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop">
         <div className="relative py-14 md:py-20">
           <CornerTicks />

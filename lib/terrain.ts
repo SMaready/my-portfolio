@@ -1,12 +1,10 @@
 /**
- * A tiny software renderer for the hero / pipeline sequence.
+ * Heightfield geometry for the hero's wireframe terrain.
  *
- * Canvas 2D rather than WebGL on purpose: the whole point of the sequence is to
- * walk through the stages of a raster pipeline, and doing it by hand means each
- * stage is a real, separate step in this file rather than a uniform toggled in
- * a shader. It also removes context-loss and no-GPU handling entirely.
+ * Canvas 2D rather than WebGL: it is a few hundred hairlines, it costs nothing,
+ * and there is no context-loss or no-GPU path to handle.
  *
- * Everything here is pure. The component owns time, scroll and the canvas.
+ * Everything here is pure. The component owns time and the canvas.
  */
 
 export const COLS = 46
@@ -121,59 +119,8 @@ const RELIEF = 4.2
 export const SPACING_X = (X_HALF * 2) / (COLS - 1)
 export const SPACING_Z = (Z_FAR - Z_NEAR) / (ROWS - 1)
 
-/** Smoothstep, used to cross-fade one pipeline stage into the next. */
+/** Smoothstep, used to cross-fade one build stage into the next. */
 export function smoothstep(edge0: number, edge1: number, x: number): number {
   const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)))
   return t * t * (3 - 2 * t)
 }
-
-export type StageMix = {
-  wireframe: number
-  fill: number
-  lighting: number
-  fog: number
-  post: number
-}
-
-/**
- * Maps overall sequence progress (0–1) onto the individual stage weights.
- * Stages overlap deliberately: each one is arriving while the last is leaving,
- * which is what makes the scrub read as one transformation instead of four cuts.
- */
-export function stageMix(p: number): StageMix {
-  return {
-    wireframe: 1 - smoothstep(0.08, 0.34, p),
-    fill: smoothstep(0.12, 0.38, p),
-    lighting: smoothstep(0.34, 0.6, p),
-    fog: smoothstep(0.56, 0.8, p),
-    post: smoothstep(0.74, 0.97, p),
-  }
-}
-
-export const STAGES = [
-  {
-    key: 'geometry',
-    label: 'Geometry',
-    caption: 'A heightfield of vertices, projected through a perspective camera.',
-  },
-  {
-    key: 'raster',
-    label: 'Rasterise',
-    caption: 'Quads resolve into filled fragments, drawn far to near.',
-  },
-  {
-    key: 'shading',
-    label: 'Shading',
-    caption: 'Surface normals meet a light direction. The form appears.',
-  },
-  {
-    key: 'atmosphere',
-    label: 'Atmosphere',
-    caption: 'Distance fog separates foreground from horizon.',
-  },
-  {
-    key: 'post',
-    label: 'Post',
-    caption: 'Vignette, grain, and a final pass over the frame.',
-  },
-] as const
