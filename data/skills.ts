@@ -1,28 +1,35 @@
 export type SkillGroup = {
   domain: string
-  proficient: string[]
-  exploring: string[]
+  /** Things I've shipped something with. */
+  working: string[]
+  /** Things I'm deliberately learning right now. Honest, not aspirational filler. */
+  sharpening: string[]
 }
 
 export const skills: SkillGroup[] = [
   {
-    domain: 'Game Development',
-    proficient: ['C++', 'Unreal Engine', 'Entity-Component Systems', 'Game Physics'],
-    exploring: ['Godot', 'Zig', 'Multiplayer Netcode'],
+    domain: 'Graphics & Rendering',
+    working: ['OpenGL', 'GLSL', 'GLFW', 'glad', 'Render loop architecture'],
+    sharpening: ['Vulkan', 'PBR shading models', 'DirectX 12'],
   },
   {
-    domain: 'Graphics & Rendering',
-    proficient: ['OpenGL', 'GLSL', 'Deferred Rendering', 'Shadow Mapping'],
-    exploring: ['Vulkan', 'WebGPU', 'Ray Tracing'],
+    domain: 'Engines & XR',
+    working: ['Unreal Engine 5', 'Blueprint', 'UE5 C++ modules', 'OpenXR', 'Meta XR', 'Quest 3 packaging'],
+    sharpening: ['UE5 materials & lighting', 'Replication & netcode'],
+  },
+  {
+    domain: 'Languages',
+    working: ['C++ (17/20/23)', 'Python', 'SQL', 'C#', 'TypeScript'],
+    sharpening: ['Concurrency', 'Profiling & optimisation'],
+  },
+  {
+    domain: 'Systems & Tooling',
+    working: ['CMake', 'vcpkg', 'Perforce', 'Git', 'Visual Studio', 'Android SDK/NDK'],
+    sharpening: ['Linux cross-compilation', 'CI for native builds'],
   },
   {
     domain: 'Machine Learning',
-    proficient: ['Python', 'PyTorch', 'CNNs', 'Data Pipelines'],
-    exploring: ['Diffusion Models', 'Reinforcement Learning', 'CUDA Kernels'],
-  },
-  {
-    domain: 'Systems Programming',
-    proficient: ['C++', 'Memory Management', 'CMake', 'Profiling'],
-    exploring: ['Zig', 'Rust', 'WASM'],
+    working: ['scikit-learn', 'pandas', 'NumPy', 'Jupyter'],
+    sharpening: ['PyTorch', 'RL for simulation'],
   },
 ]

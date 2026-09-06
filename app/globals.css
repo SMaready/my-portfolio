@@ -1,43 +1,50 @@
 @import "tailwindcss";
 
-@theme {
-  /* === Color tokens === */
-  --color-background: #0e0e0e;
-  --color-surface: #161616;
-  --color-surface-elevated: #1e1e1e;
-  --color-surface-overlay: #000000;
-  --color-accent: #F76E00;
-  --color-accent-dim: #8B3F00;
-  --color-accent-on: #ffffff;
-  --color-on-background: #f0f0f0;
-  --color-on-background-dim: #9a9a9a;
-  --color-on-surface: #eeeeee;
-  --color-on-surface-dim: #8a8a8a;
-  --color-outline: #2a2a2a;
-  --color-texture-overlay: #3d3d3d;
-  --color-error: #cf6679;
+/* ============================================================
+   ENGINE VIEWPORT — design tokens
+   One accent. One signal colour. Everything else is structure.
+   Swap --color-accent to re-skin the whole site.
+   ============================================================ */
 
-  /* === Spacing tokens === */
+@theme {
+  /* ── Ground ──────────────────────────────────────────────── */
+  --color-bg: #0b0c0e;
+  --color-bg-raise: #101215;
+  --color-bg-sink: #08090a;
+
+  /* ── Ink ─────────────────────────────────────────────────── */
+  --color-ink: #e8e6e1;
+  --color-ink-dim: #99a0a8;
+  --color-ink-faint: #5c636b;
+
+  /* ── Accent (interaction + emphasis) ─────────────────────── */
+  --color-accent: #46e0b0;
+  --color-accent-deep: #1c6f56;
+
+  /* ── Signal (status only — never decoration) ─────────────── */
+  --color-signal: #e8a33d;
+
+  /* ── Structure ───────────────────────────────────────────── */
+  --color-rule: #1b1e23;
+  --color-rule-bright: #2c3139;
+
+  /* ── Spacing ─────────────────────────────────────────────── */
   --spacing-gutter-mobile: 20px;
   --spacing-gutter-tablet: 40px;
-  --spacing-gutter-desktop: 80px;
-  --spacing-section-gap: 120px;
-  --spacing-section-gap-mobile: 80px;
-  --spacing-card-padding: 24px;
-  --spacing-panel-width: 560px;
+  --spacing-gutter-desktop: 72px;
 
-  /* === Border radius tokens (--radius-* generates rounded-* utilities) === */
+  /* ── Radius — near-square. Rounded corners read as "app". ── */
   --radius-sm: 2px;
-  --radius-DEFAULT: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-DEFAULT: 3px;
 
-  /* === Layout tokens === */
-  --nav-height: 60px;
+  /* ── Type ────────────────────────────────────────────────── */
+  --font-display: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
+}
 
-  /* === Font family tokens === */
-  --font-inter: var(--font-inter); /* populated by next/font at runtime */
-  --font-mono: var(--font-mono);   /* populated by next/font at runtime */
+:root {
+  --nav-height: 56px;
+  --page-max: 1180px;
 }
 
 html {
@@ -45,9 +52,20 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-on-background);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #04120d;
+}
+
+section[id] {
+  scroll-margin-top: var(--nav-height);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -56,6 +74,79 @@ body {
   }
 }
 
-section[id] {
-  scroll-margin-top: var(--nav-height);
+/* Visible focus that matches the system rather than the browser default. */
+:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   Motion primitives
+   ============================================================ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.reveal[data-visible='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hairline rules draw in from the left instead of fading. */
+.reveal-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.reveal-rule[data-visible='true'] {
+  transform: scaleX(1);
+}
+
+.caret {
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  translate: 0 0.14em;
+  background: var(--color-accent);
+  animation: caret-blink 1.05s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Without JS the IntersectionObserver never fires, so never hide anything. */
+@media (scripting: none) {
+  .reveal,
+  .reveal-rule {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-rule {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .caret {
+    animation: none;
+  }
 }

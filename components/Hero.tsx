@@ -1,74 +1,91 @@
-import { useId } from 'react'
+import { about } from '@/data/about'
+import { GridField } from './GridField'
+import { TypingLine } from './TypingLine'
+
+function CornerTicks() {
+  const base = 'pointer-events-none absolute h-3 w-3 border-rule-bright'
+  return (
+    <div aria-hidden="true">
+      <span className={`${base} left-0 top-0 border-l border-t`} />
+      <span className={`${base} right-0 top-0 border-r border-t`} />
+      <span className={`${base} bottom-0 left-0 border-b border-l`} />
+      <span className={`${base} bottom-0 right-0 border-b border-r`} />
+    </div>
+  )
+}
 
 export function Hero() {
-  const grainFilterId = useId() + '-hero-grain-filter'
+  const { name, prefix, rotating, meta } = about.hero
 
   return (
-    <section id="hero" aria-labelledby="hero-heading" className="relative h-screen bg-background">
-      {/*
-        Fixed + negative z-index so this stays behind every section's normal-flow
-        content regardless of DOM nesting. position:fixed is contained by the
-        nearest ancestor with transform/filter/perspective/contain — with none
-        present on Hero's ancestors, that's the root, so a non-negative z-index
-        would paint in the root's "positioned, z>=0" step, which runs after later
-        sections' in-flow content and would show through once those get real
-        content. Negative z-index avoids that.
-      */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          backgroundImage:
-            'linear-gradient(color-mix(in srgb, var(--color-texture-overlay) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-texture-overlay) 10%, transparent) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-        }}
-      />
+    <section
+      id="index"
+      aria-labelledby="hero-heading"
+      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg pt-[var(--nav-height)]"
+    >
+      <GridField />
 
-      {/* Atmosphere layer A — warm radial glow behind the hero name */}
+      {/* Vignette — pulls the eye to the centre without a gradient wash. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[2]"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 75% 55% at 50% 42%, rgba(247,110,0,0.08) 0%, rgba(247,110,0,0.03) 40%, transparent 70%)',
+            'radial-gradient(ellipse 90% 80% at 50% 50%, transparent 38%, rgba(0,0,0,0.55) 100%)',
         }}
       />
 
-      {/* Atmosphere layer D — vignette + diagonal sheen */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[3]"
-        style={{
-          background:
-            'radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0,0,0,0.45) 100%), linear-gradient(170deg, rgba(255,255,255,0.012) 0%, transparent 40%, rgba(0,0,0,0.08) 100%)',
-        }}
-      />
+      <div className="relative mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop">
+        <div className="relative py-14 md:py-20">
+          <CornerTicks />
 
-      {/* Atmosphere layer B — feTurbulence grain */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[4] mix-blend-overlay"
-        style={{ backgroundColor: 'white', opacity: 0.045, filter: `url(#${grainFilterId})` }}
-      />
-      <svg width="0" height="0" className="absolute" aria-hidden="true">
-        <filter id={grainFilterId} x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves={3} seed={5} stitchTiles="stitch" />
-        </filter>
-      </svg>
+          <div className="px-5 md:px-10">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-faint">
+              01 / index
+            </p>
 
-      <div className="relative z-[5] flex h-full flex-col items-center justify-center px-gutter-mobile pt-[var(--nav-height)] text-center md:px-gutter-tablet lg:px-gutter-desktop">
-        <h1 id="hero-heading" className="text-[40px] font-bold leading-[1.05] tracking-[-0.02em] text-on-background md:text-[72px] md:leading-[1.0] md:tracking-[-0.03em]">
-          Stephan Maready
-        </h1>
-        <p className="mt-5 font-mono text-[14px] leading-[1.5] text-on-background-dim md:text-[18px] md:tracking-[0.02em]">
-          Game Developer · Graphics Engineer · ML Engineer
-        </p>
-        <a
-          href="#projects"
-          className="mt-12 rounded-sm bg-accent px-7 py-3 font-mono text-[14px] font-medium leading-[1.4] tracking-[0.04em] text-accent-on transition-colors hover:bg-[#FF8A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          Explore Projects
-        </a>
+            <h1
+              id="hero-heading"
+              className="mt-6 text-[clamp(2.6rem,8vw,5.6rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ink"
+            >
+              {name}
+            </h1>
+
+            <p className="mt-6 font-mono text-[clamp(0.95rem,2.4vw,1.35rem)] leading-tight text-ink-dim">
+              {prefix}{' '}
+              <TypingLine phrases={rotating} />
+            </p>
+
+            <div className="mt-12 flex flex-wrap items-center gap-3">
+              <a
+                href="#work"
+                className="group inline-flex items-center gap-2 border border-accent bg-accent px-6 py-3 font-mono text-[12px] uppercase tracking-[0.16em] text-bg-sink transition-colors hover:bg-transparent hover:text-accent"
+              >
+                View work
+                <span aria-hidden="true" className="transition-transform group-hover:translate-y-0.5">
+                  &#8595;
+                </span>
+              </a>
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 border border-rule-bright px-6 py-3 font-mono text-[12px] uppercase tracking-[0.16em] text-ink-dim transition-colors hover:border-ink-dim hover:text-ink"
+              >
+                Get in touch
+              </a>
+            </div>
+
+            <dl className="mt-14 grid gap-x-10 gap-y-5 border-t border-rule pt-6 sm:grid-cols-3">
+              {meta.map((item) => (
+                <div key={item.label}>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
+                    {item.label}
+                  </dt>
+                  <dd className="mt-1.5 text-[13px] leading-snug text-ink-dim">{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
       </div>
     </section>
   )
