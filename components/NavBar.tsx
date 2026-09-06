@@ -5,11 +5,11 @@ import { contact } from '@/data/about'
 import { cn } from '@/lib/cn'
 
 const NAV_LINKS = [
-  { num: '02', label: 'Work', href: '#work' },
-  { num: '03', label: 'About', href: '#about' },
-  { num: '04', label: 'Stack', href: '#stack' },
-  { num: '05', label: 'Now', href: '#now' },
-  { num: '06', label: 'Contact', href: '#contact' },
+  { label: 'Work', href: '#work' },
+  { label: 'About', href: '#about' },
+  { label: 'Stack', href: '#stack' },
+  { label: 'Now', href: '#now' },
+  { label: 'Contact', href: '#contact' },
 ] as const
 
 const SOCIAL_LINKS = [
@@ -215,7 +215,6 @@ export function NavBar() {
                   isActive ? 'text-accent' : 'text-ink-dim hover:text-ink'
                 )}
               >
-                <span className="hidden text-ink-faint lg:inline">{link.num} </span>
                 {link.label}
               </a>
             )
@@ -285,9 +284,8 @@ export function NavBar() {
             href={link.href}
             ref={index === 0 ? firstMenuLinkRef : undefined}
             onClick={() => setIsMenuOpen(false)}
-            className="flex items-baseline gap-4 border-b border-rule py-5 text-[22px] font-medium text-ink"
+            className="block border-b border-rule py-5 text-[22px] font-medium text-ink"
           >
-            <span className="font-mono text-[12px] text-ink-faint">{link.num}</span>
             {link.label}
           </a>
         ))}

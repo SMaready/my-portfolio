@@ -40,13 +40,9 @@ export function Hero() {
           <CornerTicks />
 
           <div className="px-5 md:px-10">
-            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-faint">
-              01 / index
-            </p>
-
             <h1
               id="hero-heading"
-              className="mt-6 text-[clamp(2.6rem,8vw,5.6rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ink"
+              className="text-[clamp(2.6rem,8vw,5.6rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ink"
             >
               {name}
             </h1>
