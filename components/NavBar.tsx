@@ -4,12 +4,15 @@ import { useEffect, useRef, useState } from 'react'
 import { about, contact } from '@/data/about'
 import { cn } from '@/lib/cn'
 
+// `sections` is what the scroll-spy watches; `href` is where the link goes.
+// Work points at the build sequence so clicking it plays Compiling / Linking /
+// Running rather than skipping straight to the cards, and stays lit across both.
 const NAV_LINKS = [
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Stack', href: '#stack' },
-  { label: 'Now', href: '#now' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Work', href: '#build', sections: ['build', 'work'] },
+  { label: 'About', href: '#about', sections: ['about'] },
+  { label: 'Stack', href: '#stack', sections: ['stack'] },
+  { label: 'Now', href: '#now', sections: ['now'] },
+  { label: 'Contact', href: '#contact', sections: ['contact'] },
 ] as const
 
 const STATUS =
@@ -69,7 +72,7 @@ function MenuGlyph({ open }: { open: boolean }) {
 }
 
 export function NavBar() {
-  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [activeLink, setActiveLink] = useState<number | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [progress, setProgress] = useState(0)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
@@ -85,9 +88,10 @@ export function NavBar() {
   // viewport is unambiguous, and the bottom-of-document case is handled
   // outright so the final section always wins when you reach the end.
   useEffect(() => {
-    const sections = NAV_LINKS.map((link) => document.getElementById(link.href.slice(1))).filter(
-      (el): el is HTMLElement => el !== null
-    )
+    // Flattened so one nav item can cover several sections, in document order.
+    const tracked = NAV_LINKS.flatMap((link, linkIndex) =>
+      link.sections.map((id) => ({ linkIndex, el: document.getElementById(id) }))
+    ).filter((entry): entry is { linkIndex: number; el: HTMLElement } => entry.el !== null)
 
     let frame = 0
 
@@ -98,12 +102,12 @@ export function NavBar() {
       const scrollable = doc.scrollHeight - window.innerHeight
       setProgress(scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0)
 
-      if (sections.length === 0) return
+      if (tracked.length === 0) return
 
       // At the bottom of the document the last section is active by definition,
       // however short it is.
       if (window.scrollY + window.innerHeight >= doc.scrollHeight - 4) {
-        setActiveSection(sections[sections.length - 1].id)
+        setActiveLink(tracked[tracked.length - 1].linkIndex)
         return
       }
 
@@ -111,11 +115,11 @@ export function NavBar() {
         parseInt(getComputedStyle(doc).getPropertyValue('--nav-height'), 10) || 56
       const line = navHeight + window.innerHeight * 0.25
 
-      let current: string | null = null
-      for (const section of sections) {
-        if (section.getBoundingClientRect().top <= line) current = section.id
+      let current: number | null = null
+      for (const entry of tracked) {
+        if (entry.el.getBoundingClientRect().top <= line) current = entry.linkIndex
       }
-      setActiveSection(current)
+      setActiveLink(current)
     }
 
     function onScroll() {
@@ -203,8 +207,8 @@ export function NavBar() {
         </a>
 
         <div className="hidden items-center gap-7 md:flex">
-          {NAV_LINKS.map((link) => {
-            const isActive = activeSection === link.href.slice(1)
+          {NAV_LINKS.map((link, linkIndex) => {
+            const isActive = activeLink === linkIndex
             return (
               <a
                 key={link.href}
@@ -294,7 +298,7 @@ export function NavBar() {
         )}
       >
         {NAV_LINKS.map((link, index) => {
-          const isActive = activeSection === link.href.slice(1)
+          const isActive = activeLink === index
           return (
             <a
               key={link.href}

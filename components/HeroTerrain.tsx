@@ -9,6 +9,17 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 // stutter rather than a lower frame rate. 1.5 is indistinguishable here.
 const MAX_DPR = 1.5
 
+// The whole canvas is repainted and re-uploaded every frame, so cost scales
+// with its pixel count, not with the scene. A 1440x900 window is 1.3M pixels;
+// a 2560x1440 one is 3.7M and an ultrawide 4.9M — which is why this was smooth
+// on a phone and not on a desktop. Past this budget the canvas renders smaller
+// and is scaled up by CSS. These are low-alpha hairlines on near-black, so the
+// softening is not visible; the paint cost falling by 3x is.
+const MAX_CANVAS_PIXELS = 1_800_000
+
+/** Row alpha is banded so the rows become a few stroke calls instead of forty. */
+const BANDS = 6
+
 /**
  * Ambient wireframe terrain behind the hero. The camera travels forward over a
  * static heightfield and parallaxes toward the cursor; it never does anything
@@ -43,15 +54,16 @@ export function HeroTerrain() {
 
     function resize() {
       if (!canvas || !ctx) return
-      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
       width = window.innerWidth
       height = window.innerHeight
+      const budget = Math.sqrt(MAX_CANVAS_PIXELS / Math.max(1, width * height))
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR, budget)
       canvas.width = Math.round(width * dpr)
       canvas.height = Math.round(height * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       // Fewer verticals on narrow screens: at phone widths they crowd into
       // moire anyway, so this costs nothing visually.
-      columnStep = width < 700 ? 4 : 2
+      columnStep = width < 700 ? 4 : width < 1700 ? 2 : 3
     }
 
     function onPointer(event: PointerEvent) {
@@ -87,16 +99,23 @@ export function HeroTerrain() {
 
       ctx.lineWidth = 1
 
-      // Rows, drawn near to far so the nearest lines sit on top.
-      for (let j = 0; j < ROWS; j++) {
-        const fade = 1 - geo.depth[j * COLS] * 0.72
+      // Rows, banded by depth. Each band is one path and one stroke call, so
+      // the rows cost six draw calls rather than forty — every stroke() with a
+      // different colour is its own submission to the rasteriser.
+      for (let band = 0; band < BANDS; band++) {
+        const fade = 1 - ((band + 0.5) / BANDS) * 0.72
         ctx.strokeStyle = `rgba(150,214,196,${fade * 0.3})`
         ctx.beginPath()
-        for (let i = 0; i < COLS; i++) {
-          const k = j * COLS + i
-          if (i === 0) ctx.moveTo(geo.sx[k], geo.sy[k])
-          else ctx.lineTo(geo.sx[k], geo.sy[k])
+
+        for (let j = 0; j < ROWS; j++) {
+          if (Math.min(BANDS - 1, Math.floor((j / (ROWS - 1)) * BANDS)) !== band) continue
+          for (let i = 0; i < COLS; i++) {
+            const k = j * COLS + i
+            if (i === 0) ctx.moveTo(geo.sx[k], geo.sy[k])
+            else ctx.lineTo(geo.sx[k], geo.sy[k])
+          }
         }
+
         ctx.stroke()
       }
 

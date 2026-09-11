@@ -123,7 +123,7 @@ export function BuildSection() {
     >
       <div
         ref={stickyRef}
-        className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden"
+        className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
       >
         <div className="mx-auto w-full max-w-[var(--page-max)] px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop">
           <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
@@ -137,14 +137,14 @@ export function BuildSection() {
 
           <p className="mt-3 font-mono text-[13px] text-ink-dim">{STAGES[active].caption}</p>
 
-          <ol className="mt-10 space-y-px border-t border-rule md:mt-14">
+          <ol className="mt-7 space-y-px border-t border-rule md:mt-14">
             {projects.map((project, index) => (
               <li
                 key={project.id}
                 ref={(node) => {
                   rowsRef.current[index] = { ...(rowsRef.current[index] ?? {}), root: node } as RowNodes
                 }}
-                className="border-b border-rule py-4 opacity-[0.12] md:py-5"
+                className="border-b border-rule py-3 opacity-[0.12] md:py-5"
               >
                 <div className="flex items-center gap-4 md:gap-8">
                   <span
