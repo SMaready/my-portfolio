@@ -146,6 +146,13 @@ function ProjectRail() {
     const HOLD_IN = 0.08
     const HOLD_OUT = 0.06
 
+    // Each card's scroll segment is part rest, part move. Without this the
+    // position is a straight function of scroll, so a card is only perfectly
+    // centred at a single pixel of scroll and stopping anywhere else leaves it
+    // half off-screen. DWELL is the share of a segment held still at each end,
+    // so a card rests centred for DWELL * 2 of a segment across the boundary.
+    const DWELL = 0.28
+
     function measure() {
       const section = sectionRef.current
       if (!section) return
@@ -165,7 +172,12 @@ function ProjectRail() {
         1,
         Math.max(0, (p - HOLD_IN) / (1 - HOLD_IN - HOLD_OUT))
       )
-      const position = travelled * lastCard
+
+      const segment = travelled * lastCard
+      const step = Math.max(0, Math.min(lastCard - 1, Math.floor(segment)))
+      const withinStep = segment - step
+      const moving = Math.min(1, Math.max(0, (withinStep - DWELL) / (1 - DWELL * 2)))
+      const position = step + smoothstep(0, 1, moving)
 
       if (trackRef.current) {
         trackRef.current.style.transform = `translate3d(${-position * slot}px, 0, 0)`
