@@ -5,10 +5,10 @@ import { about, contact } from '@/data/about'
 import { cn } from '@/lib/cn'
 
 // `sections` is what the scroll-spy watches; `href` is where the link goes.
-// Work points at the build sequence so clicking it plays Compiling / Linking /
-// Running rather than skipping straight to the cards, and stays lit across both.
+// The build sequence and the cards share one pinned section, so Work lands on
+// Compiling and stays lit right through to the last card.
 const NAV_LINKS = [
-  { label: 'Work', href: '#build', sections: ['build', 'work'] },
+  { label: 'Work', href: '#work', sections: ['work'] },
   { label: 'About', href: '#about', sections: ['about'] },
   { label: 'Stack', href: '#stack', sections: ['stack'] },
   { label: 'Now', href: '#now', sections: ['now'] },
